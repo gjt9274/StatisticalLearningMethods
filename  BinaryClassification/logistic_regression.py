@@ -35,7 +35,7 @@ def  logistic_regrssion(data,label):
             b += lr*(px-y)
 
 
-        print("Epoch {0:d}, loss={1:.3f}".format(epoch, loss))
+        print("Epoch {0:d}, loss={1:.3f}".format(epoch, loss.item()))
 
     return w,b
 
@@ -51,7 +51,7 @@ def test(w,b,test_file_path):
     test_data, passenger_id = load_data(test_file_path,training=False)
 
     # 2. 归一化数据
-    normal_test_data = normalize(normal_data)
+    normal_test_data = normalize(test_data)
 
     # 3. 预测
     predictions = 1/(1+np.exp(np.dot(normal_test_data,w)+b))
@@ -65,7 +65,7 @@ if __name__ == "__main__":
     data,label = load_data('./data/Titanic/train.csv')
     normal_data = normalize(data)
     # 需要将label还原成0，1
-    y = list(map(lambda x:1 if x==1 else 0,label))
-    w,b = logistic_regrssion(normal_data,y)
+    label= list(map(lambda x:1 if x==1 else 0,label))
+    w,b = logistic_regrssion(normal_data,label)
     test(w,b,'./data/Titanic/test.csv')
 
