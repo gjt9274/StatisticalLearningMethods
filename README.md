@@ -1,8 +1,8 @@
 ### 本仓库为《统计学习方法》的算法结合开源数据的实现
 
 #### TODOs
-- [x] 感知机
-- [ ] 逻辑回归
+- [x] [感知机](./BinaryClassification/perceptron.py)
+- [x] [逻辑回归](./BinaryClassification/logistic_regression.py)
 - [ ] SVM
 - [ ] AdaBoost
 - [ ] KNN
