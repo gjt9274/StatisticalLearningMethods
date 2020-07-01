@@ -1,4 +1,4 @@
-from .load_data import *
+from  load_data import load_data,normalize
 import numpy as np
 import pandas as pd
 
@@ -34,11 +34,18 @@ def perceptron(data, label):
     return w,b
 
 def test(w,b,test_file_path):
+    """
+    测试
+    :param w:
+    :param b:
+    :param test_file_path: 测试文件所在路径
+    :return:
+    """
     # 1.准备数据
     test_data,passenger_id = load_data(test_file_path,training=False)
 
     # 2. 归一化
-    normal_test_data = normlize(test_data)
+    normal_test_data = normalize(test_data)
 
     # 3. 预测
     predictions = np.dot(normal_test_data,w) + b #[n,1]
@@ -53,7 +60,7 @@ def test(w,b,test_file_path):
 
 if __name__ == "__main__":
     data,label = load_data('./data/Titanic/train.csv')
-    normal_data = normlize(data)
+    normal_data = normalize(data)
     w,b = perceptron(normal_data,label)
     test(w, b, './data/Titanic/test.csv')
 

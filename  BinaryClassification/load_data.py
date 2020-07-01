@@ -72,7 +72,7 @@ def load_data(data_path,training=True):
     return x, y
 
 
-def normlize(x):
+def normalize(x):
     """
     归一化特征空间，将数据转换成均值为0，标准差为1的数据
     :param x: [n,features_nums] 每一列代表一个特征
