@@ -3,7 +3,7 @@
 #### TODOs
 - [x] [感知机](./BinaryClassification/perceptron.py)
 - [x] [逻辑回归](./BinaryClassification/logistic_regression.py)
-- [ ] SVM
+- [x] [SVM](./BinaryClassification/svm.py)
 - [ ] AdaBoost
 - [ ] KNN
 - [ ] 朴素贝叶斯
