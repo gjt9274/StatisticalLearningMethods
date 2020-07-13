@@ -1,4 +1,4 @@
 .idea
-data/Titanic/
-data/MNIST/
+*.csv
+*.gz
 **/__pycache__
