@@ -8,7 +8,7 @@
 """
 
 import numpy as np
-import pandas as pd
+from load_data import load_data
 from collections import Counter
 
 
@@ -56,3 +56,7 @@ class KNN:
 
 
 if __name__ == "__main__":
+    (train_images, train_labels), (test_images, test_labels) = load_data('../data/MNIST/')
+    knn = KNN(train_images,train_labels)
+    score = knn.score(test_images,test_labels)
+    print(score)
