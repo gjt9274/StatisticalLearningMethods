@@ -304,7 +304,7 @@ def test(svm,test_file_path):
 
 
 if __name__ == "__main__":
-    data, labels = load_data('./data/Titanic/train.csv')
+    data, labels = load_data('../data/Titanic/train.csv')
     normal_data = normalize(data)
     svm = SVM(max_epochs=200)
     svm.fit(normal_data,labels)

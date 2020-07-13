@@ -62,10 +62,10 @@ def test(w,b,test_file_path):
     result.to_csv('my_submission_1.csv', index=False)
 
 if __name__ == "__main__":
-    data,label = load_data('./data/Titanic/train.csv')
+    data,label = load_data('../data/Titanic/train.csv')
     normal_data = normalize(data)
     # 需要将label还原成0，1
     label= list(map(lambda x:1 if x==1 else 0,label))
     w,b = logistic_regrssion(normal_data,label)
-    test(w,b,'./data/Titanic/test.csv')
+    test(w, b, '../data/Titanic/test.csv')
 

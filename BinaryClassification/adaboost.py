@@ -234,12 +234,12 @@ def test(model, test_file_path):
 
 
 if __name__ == "__main__":
-    data, label = load_data('./data/Titanic/train.csv')
+    data, label = load_data('../data/Titanic/train.csv')
     normal_data = normalize(data)
     model = AdaBoost(n_estimators=200, learning_rate=0.1)
     model.fit(normal_data, label)
     print(model.score(normal_data, label))
-    test(model, './data/Titanic/test.csv')
+    test(model, '../data/Titanic/test.csv')
 
     from sklearn.ensemble import AdaBoostClassifier
     clf = AdaBoostClassifier(n_estimators=100, learning_rate=0.5)

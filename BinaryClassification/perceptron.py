@@ -59,8 +59,8 @@ def test(w,b,test_file_path):
 
 
 if __name__ == "__main__":
-    data,label = load_data('./data/Titanic/train.csv')
+    data,label = load_data('../data/Titanic/train.csv')
     normal_data = normalize(data)
     w,b = perceptron(normal_data,label)
-    test(w, b, './data/Titanic/test.csv')
+    test(w, b, '../data/Titanic/test.csv')
 
