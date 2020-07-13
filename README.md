@@ -9,8 +9,8 @@
 - [ ] KNN
 - [ ] 朴素贝叶斯
 - [ ] 决策树
-#### 集成方法
-- [ ] [AdaBoost(任务:二分类)](./BinaryClassification/adaboost.py)
+#### 提升方法
+- [x] [AdaBoost(任务:二分类)](./BinaryClassification/adaboost.py)
 - [ ] [GBDT(任务:回归，数据集:波士顿房价)](#)
 #### 概率图模型
 - [ ] [隐马尔可夫模型(任务:中文分词，数据集:人民日报1998语料库)](#)

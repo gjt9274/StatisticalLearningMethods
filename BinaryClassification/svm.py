@@ -302,15 +302,6 @@ def test(svm,test_file_path):
     result = pd.DataFrame({'PassengerId':passenger_id,'Survived':predictions})
     result.to_csv('./my_submission.csv',index=False)
 
-def create_data():
-    iris = load_iris()
-    #选取前两类作为数据
-    Data=np.array(iris["data"])[:100]
-    Label=np.array(iris["target"])[:100]
-    Label=Label*2-1
-    print("dara shape:",Data.shape)
-    print("label shape:",Label.shape)
-    return Data, Label
 
 if __name__ == "__main__":
     data, labels = load_data('./data/Titanic/train.csv')

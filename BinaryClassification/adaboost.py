@@ -9,8 +9,6 @@
 from load_data import *
 import numpy as np
 import pandas as pd
-from sklearn.datasets import load_iris
-from sklearn.model_selection import train_test_split
 
 
 class AdaBoost:
@@ -244,7 +242,6 @@ if __name__ == "__main__":
     test(model, './data/Titanic/test.csv')
 
     from sklearn.ensemble import AdaBoostClassifier
-
     clf = AdaBoostClassifier(n_estimators=100, learning_rate=0.5)
     clf.fit(normal_data, label)
     print(clf.score(normal_data, label))
