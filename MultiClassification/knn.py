@@ -11,6 +11,7 @@ import numpy as np
 from load_data import load_data
 from math import sqrt
 from collections import Counter,namedtuple
+import time
 
 
 class KNN:
@@ -168,11 +169,16 @@ def find_nearest(tree,point):
 
     return travel(tree.root,point,float("inf"))
 
+#TODO：KD树进行分类
 
 if __name__ == "__main__":
+    start = time.time()
     (train_images, train_labels), (test_images, test_labels) = load_data('../data/MNIST/')
     knn = KNN(train_images,train_labels)
     score = knn.score(test_images[:100],test_labels[:100])
+    end = time.time()
     print(score)
+    print("time:{:.4f}s".format(end-start))
+
 
 
