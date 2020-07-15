@@ -7,7 +7,7 @@
 - [x] [SVM](./BinaryClassification/svm.py)
 #### 多分类(数据集:MNIST)
 - [x] [KNN](./MultiClassification/knn.py)
-- [ ] 朴素贝叶斯
+- [x] [朴素贝叶斯](./MultiClassification/naive_bayes.py)
 - [ ] 决策树
 #### 提升方法
 - [x] [AdaBoost(任务:二分类)](./BinaryClassification/adaboost.py)
