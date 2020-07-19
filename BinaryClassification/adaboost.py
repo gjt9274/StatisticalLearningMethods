@@ -81,16 +81,17 @@ class AdaBoost:
                     if weight_error_positive < weight_error_negative:
                         weight_error = weight_error_positive
                         _compare_array = compare_array_positive
-                        direct = 'positive'
+                        _direct = 'positive'
                     else:
                         weight_error = weight_error_negative
                         _compare_array = compare_array_negative
-                        direct = 'negative'
+                        _direct = 'negative'
 
                     if weight_error < clf_error:
                         clf_error = weight_error
                         compare_array = _compare_array
                         best_v = v
+                        direct = _direct
                         axis = j
 
         return axis, best_v, direct, clf_error, compare_array
