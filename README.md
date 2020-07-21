@@ -8,7 +8,7 @@
 #### 多分类(数据集:MNIST)
 - [x] [KNN](./MultiClassification/knn.py)
 - [x] [朴素贝叶斯](./MultiClassification/naive_bayes.py)
-- [ ] 决策树
+- [x] [决策树](./MultiClassification/decision_tree.py)
 #### 提升方法
 - [x] [AdaBoost(任务:二分类)](./BinaryClassification/adaboost.py)
 - [ ] [GBDT(任务:回归，数据集:波士顿房价)](#)
