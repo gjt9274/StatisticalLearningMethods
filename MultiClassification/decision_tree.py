@@ -30,7 +30,7 @@ class Node:
     def predict(self, features):
         if self.leaf is True:
             return self.label
-        return self.sub_tree[features[:,self.feature_axis].item()].predict(features)
+        return self.sub_tree[features[self.feature_axis].item()].predict(features)
 
 
 class DecisionTree:
@@ -221,7 +221,7 @@ if __name__ == "__main__":
 
     model = DecisionTree()
     # decision_tree = model.fit(datasets[:,:-1],datasets[:,-1])
-    # pred = model.predict(np.array(['老年', '否', '否', '一般']).reshape(1,-1))
+    # pred = model.predict(np.array(['老年', '否', '否', '一般']))
     # print(pred)
     decision_tree = model.fit(train_images,train_labels)
     score = model.score(test_images,test_labels)
