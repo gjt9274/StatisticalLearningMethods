@@ -28,10 +28,9 @@ class Node:
         Returns:
 
         """
-        if self.leaf:
+        if self.leaf is True:
             return self.c
-
-        if x[self.feature] <= self.value:
+        elif x[self.feature] <= self.value:
             return self.left_node.predict(x)
         elif x[self.feature] > self.value:
             return self.right_node.predict(x)
@@ -84,11 +83,11 @@ class GBDT:
             tree (): 回归树
 
         """
-        feature_axis,split_value = self.get_best_partition(datasets)
 
         if len(datasets)< 2 or depth ==max_depth:
-            return Node(feature_axis,split_value,leaf=True,c=datasets.iloc[:,-1].mean())
+            return Node(leaf=True,c=datasets.iloc[:,-1].mean())
 
+        feature_axis,split_value = self.get_best_partition(datasets)
         current_node = Node(feature_axis,split_value)
 
         # 划分数据集
@@ -100,7 +99,7 @@ class GBDT:
 
         return current_node
 
-    def fit(self,datasets):
+    def fit(self,datasets,max_depth=2):
         """
         梯度提升过程
         Args:
@@ -121,7 +120,7 @@ class GBDT:
             for j in range(len(datasets)):
                 datasets.iloc[j,-1] = datasets.iloc[j,-1] - self.alpha * self.tree_list[-1].predict(datasets.iloc[j,:-1])
 
-            f = self.create_cart_tree(datasets,depth=0,max_depth=4)
+            f = self.create_cart_tree(datasets,depth=0,max_depth=max_depth)
             self.tree_list.append(f)
 
 
