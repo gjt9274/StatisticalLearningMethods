@@ -33,7 +33,7 @@ def load_data(data_path,test_split=0.1):
     train_data = df.iloc[:int(len(data)*(1-test_split))]
     test_data = df.iloc[int(len(data)*(1-test_split)):]
 
-    return train_data,test_data
+    return train_data.reset_index(),test_data.reset_index()
 
 # if __name__ == "__main__":
 #     data_path = '../data/boston_housing/housing.csv'
