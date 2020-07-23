@@ -21,7 +21,7 @@
 - [ ] [CRF(任务:词性标注，数据集:人民日报1998语料库)](#)
 
 #### 聚类(数据集:鸢尾花)
-- [ ] [层次聚类](./Cluster/agglomerative_clustering.py)
+- [x] [层次聚类](Cluster/hierarchical_clustering .py)
 - [ ] [K-means](./Cluster/#)
 
 #### 降维
