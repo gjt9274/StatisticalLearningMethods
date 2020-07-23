@@ -27,6 +27,7 @@ class NaiveBayes:
     def _calculate_prob(self, x, y, lamda):
         """
         计算先验概率和条件概率
+        _____
         Args:
             x (array):  样本特征 (n, 28x28)
             y (array): 样本标签数组 (n, 1)
