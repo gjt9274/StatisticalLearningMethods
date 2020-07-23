@@ -11,7 +11,7 @@
 - [x] [决策树](./MultiClassification/decision_tree.py)
 #### 提升方法
 - [x] [AdaBoost(任务:二分类)](./BinaryClassification/adaboost.py)
-- [ ] [GBDT(任务:回归，数据集:波士顿房价)](#)
+- [x] [GBDT(任务:回归，数据集:波士顿房价)](#)
 #### 概率图模型
 - [ ] [HMM(任务:中文分词，数据集:人民日报1998语料库)](#)
 - [ ] [CRF(任务:词性标注，数据集:人民日报1998语料库)](#)
