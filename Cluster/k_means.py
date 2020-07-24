@@ -23,6 +23,42 @@ class KMeans:
     def cal_dis(self, x1, x2):
         return sum(np.square(x1 - x2))
 
+    def init_center(self):
+        """
+        先随机选择一个点，然后找离其最远的点作为第二个中心点，依次类推
+        """
+        center = []
+        c0 = np.random.randint(0,self.N)
+        center.append(c0)
+        max_dis = float(-np.inf)
+        index = -1
+
+        while len(center) < self.k:
+            remainder_list = [i for i in range(self.N) if i not in center] #
+            for i in remainder_list:
+                dis = self.get_farthest(i,center)
+                if dis > max_dis:
+                    max_dis = dis
+                    index = i
+            center.append(index)
+        return center
+
+
+
+
+    def get_farthest(self,i,center_list):
+        """计算第i个样本到当前聚类中心列表的最远距离"""
+        x = self.datasets[i]
+        max_dis = float(-np.inf)
+        for j in center_list:
+            dis = self.cal_dis(x,self.datasets[j])
+            if dis > max_dis:
+                max_dis = dis
+        return max_dis
+
+
+
+
     def get_belongs(self, i):
         x = self.datasets[i]
         min_dis = float(np.inf)
@@ -38,7 +74,8 @@ class KMeans:
     def fit(self):
 
         # 1. 随机初始化聚类中心
-        self.cluster_center = self.datasets[[0,63,149]] # 手动选择初始化的聚类中心，或者可以用层次聚类的结果
+        center = self.init_center()
+        self.cluster_center = self.datasets[center]
         # self.cluster_center = self.datasets[np.random.choice(self.N,3)]  #随机初始化聚类中心
 
         # 2. 计算每个样本到聚类中心的距离，将其划分到距离最近的类，直到满足条件
