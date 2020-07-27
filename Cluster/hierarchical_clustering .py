@@ -19,7 +19,7 @@ class HierarchicalClustering :
 
     # 计算两个样本的距离，此处使用欧氏距离
     def cal_dis(self, x1, x2):
-        return np.sqrt(np.dot((x1-x2),(x1-x2).T))
+        return np.sqrt(sum([(a-b)**2 for a,b in zip(x1,x2)]))
 
     # 计算两个类的最短距离，即两个类中距离最近的两个样本的距离
     def cal_culster_dis(self,culs1,culs2):
@@ -36,29 +36,27 @@ class HierarchicalClustering :
         min_index = (-1,-1)
         for i in self.results.keys():
             for j in self.results.keys():
-                if i==j : continue
+                if i == j: continue
                 dis = self.cal_culster_dis(self.results[i],self.results[j])
                 if dis < min_dis:
                     min_dis = dis
                     min_index = (i,j)
-
         return min_index
 
-    def fit(self,datasets):
-        n = datasets.shape[0]
+    def fit(self,data):
+        n = data.shape[0]
         # 1. 计算每个样本之间的距离，得到距离矩阵
-        self.D = np.array([[self.cal_dis(datasets[i],datasets[j]) for j in range(n)] for i in range(n)])
+        self.D = np.array([[self.cal_dis(data[i],data[j]) for j in range(n)] for i in range(n)])
 
         # 2. 先将每个样本分为一个类
         for i in range(n):
-            self.results[i] = []
-            self.results[i].append(i)
+            self.results[i] = [i]
 
         # 3. 得到所有类中，距离最近的两个类，将其合并，知道类数目达到指定的数目
         while len(self.results) > self.num_categories:
             index1,index2 = self.get_min_culster()
             self.results[index1].extend(self.results[index2])
-            self.results.pop(index2)
+            del self.results[index2]
 
         return self.results
 
