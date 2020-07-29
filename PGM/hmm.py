@@ -40,6 +40,15 @@ class HiddenMarkov:
                 self.trans_mat[state][target] = 0.0
 
     def train_epoch(self, observes, status):
+        """
+        对每个观测序列(句子)及其状态序列(分词标注),统计三个参数
+        Args:
+            observes (str): 训练数据中分好词的句子
+            status (str): 对应的分词标注序列
+
+        Returns:
+
+        """
         for i in range(len(status)):
             if i == 0:
                 self.init_vec[status[i]] += 1  # 统计初始状态的频数
@@ -58,6 +67,7 @@ class HiddenMarkov:
             return 'B' + (len(word) - 2) * 'M' + 'E'
 
     def get_prob(self):
+        """将统计得到的三个参数，根据极大似然估计法化成概率形式"""
         init_vec = {}
         trans_mat = {}
         emit_mat = {}
@@ -90,6 +100,7 @@ class HiddenMarkov:
 
     # 维特比算法
     def viterbi(self, sequence):
+        """维特比算法预测句子的分词 结果"""
         init_vec, trans_mat, emit_mat = self.get_prob()
         tab = [{}]
         path = {}
@@ -231,5 +242,5 @@ if __name__ == "__main__":
     segger = HMMSegger()
     segger.loat_data(file_path)
     segger.train()
-    res = segger.cut("武汉市长江大桥")
+    res = segger.cut("生存还是死亡是一个问题")
     print(res)
