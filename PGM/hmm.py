@@ -107,7 +107,7 @@ class HiddenMarkov:
         # 初始化
         for state in self.states:
             delta[0][state] = init_vec[state] + \
-                emit_mat[state].get(sentence[0], EPS)
+                emit_mat[state].get(sentence[0], EPS) #如果出现训练集中没有见过的词，则返回一个极小值
 
         for t in range(1, len(sentence)):
             delta.append({})
@@ -233,10 +233,11 @@ def test(segger,test_file):
             print(segger.cut(line.strip()))
 
 if __name__ == "__main__":
-    file_path = "../data/PKU/msr_training.utf8"
+    file_path = "../data/PKU/pku_training.utf8"
     segger = HMMSegger()
     segger.loat_data(file_path)
     segger.train()
-    print(segger.cut("共同创造美好的新世纪——二○○一年新年贺词"))
+    sentence = "隐马尔可夫模型进行分词任务"
+    print(segger.cut(sentence)) #['隐马尔可夫', '模型', '进行', '分词', '任务']
     # test(segger,"../data/PKU/pku_test.utf8")
 
