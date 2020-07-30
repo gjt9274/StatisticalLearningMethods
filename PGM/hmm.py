@@ -1,130 +1,130 @@
 """
 @File:    hmm
 @Author:  GongJintao
-@Create:  7/27/2020 11:08 AM
+@Create:  7/29/2020 9:25 PM
 @Software:Pycharm
 @Blog:    https://gongjintao.com
 @Email:   gjt9274@gmail.com
 """
 
 import numpy as np
-import pandas as pd
 import json
 import pickle
 import os
 
-STATE = {'B', 'M', 'E', 'S'}
+STATES = {'B', 'M', 'E', 'S'}
+EPS = -3.14e+100
 
 
 class HiddenMarkov:
     def __init__(self):
-        # B: 词的开头字
-        # M: 词的中间字
-        # E: 词的结尾字
-        # S: 单个字
-        self.states = {}  # 状态标记
-        self.init_vec = {}  # 初始化状态分布向量 len(state) x 1
-        self.emit_mat = {}  # 发射矩阵，即每个状态到每个字的概率，len(state) x len(observe)
-        self.trans_mat = {}  # 状态转移矩阵，即每个状态之间相互转移的概率，len(state) x len(state)
+        self.init_vec = {}  # 初始化状态概率  N(len(state))
+        self.trans_mat = {}  # 状态转移矩阵，N X N
+        self.emit_mat = {}  # 发射矩阵 ， N X M
+        self.states = {}
 
-    # 初始化参数
     def _init_args(self):
+        """初始化参数"""
         for state in self.states:
-            # 1. 初始化 初始状态分布向量
             self.init_vec[state] = 0
-            # 2. 初始化发射矩阵
             self.emit_mat[state] = {}
-            # 3. 初始化状态转移矩阵
             self.trans_mat[state] = {}
             for target in self.states:
-                self.trans_mat[state][target] = 0.0
+                self.trans_mat[state][target] = 0
 
-    def train_epoch(self, observes, status):
+    def train_epoch(self, observers, status):
         """
-        对每个观测序列(句子)及其状态序列(分词标注),统计三个参数
+        根据每个句子来统计信息
         Args:
-            observes (str): 训练数据中分好词的句子
-            status (str): 对应的分词标注序列
+            observers (str): 观测序列，即句子
+            status (str): 状态序列，与状态序列等长
 
         Returns:
 
         """
         for i in range(len(status)):
-            if i == 0:
-                self.init_vec[status[i]] += 1  # 统计初始状态的频数
+            if i == 0:  # 即该状态序列的开头状态
+                self.init_vec[status[i]] += 1
             else:
+                # 转移矩阵，前一个状态和后一个状态的统计频数
                 self.trans_mat[status[i - 1]][status[i]] += 1
 
-            if observes[i] not in self.emit_mat[status[i]]:
-                self.emit_mat[status[i]][observes[i]] = 1
+            if observers[i] not in self.emit_mat[status[i]]:
+                self.emit_mat[status[i]][observers[i]] = 0
             else:
-                self.emit_mat[status[i]][observes[i]] += 1
-
-    def get_tags(self, word):
-        if len(word) == 1:
-            return 'S'
-        else:
-            return 'B' + (len(word) - 2) * 'M' + 'E'
+                self.emit_mat[status[i]][observers[i]] += 1
 
     def get_prob(self):
-        """将统计得到的三个参数，根据极大似然估计法化成概率形式"""
+        """
+        得到概率化后的三个参数
+        """
         init_vec = {}
         trans_mat = {}
         emit_mat = {}
+
         for key in self.init_vec:
-            if self.init_vec[key] == 0:  # ‘M','E'不可能出现在开头，所以为0，需要设置一个极小值
+            if self.init_vec[key] == 0:
                 init_vec[key] = -3.14e+100
             else:
-                init_vec[key] = float(self.init_vec[key]) / \
-                    sum(self.init_vec.values())
+                # 为了防止句子过长，概率相乘，值下溢，用log来计算
+                init_vec[key] = np.log(
+                    float(self.init_vec[key]) / sum(self.init_vec.values()))
 
         for key1 in self.trans_mat:
+            total = sum(self.trans_mat[key1].values())
             trans_mat[key1] = {}
             for key2 in self.trans_mat[key1]:
                 if self.trans_mat[key1][key2] == 0:
                     trans_mat[key1][key2] = -3.14e+100
                 else:
-                    trans_mat[key1][key2] = float(
-                        self.trans_mat[key1][key2]) / sum(self.trans_mat[key1].values())
+                    trans_mat[key1][key2] = np.log(
+                        float(self.trans_mat[key1][key2]) / total)
 
         for key1 in self.emit_mat:
+            total = sum(self.emit_mat[key1].values())
             emit_mat[key1] = {}
             for key2 in self.emit_mat[key1]:
                 if self.emit_mat[key1][key2] == 0:
                     emit_mat[key1][key2] = -3.14e+100
                 else:
-                    emit_mat[key1][key2] = float(
-                        self.emit_mat[key1][key2]) / sum(self.emit_mat[key1].values())
+                    emit_mat[key1][key2] = np.log(
+                        float(self.emit_mat[key1][key2]) / total)
 
         return init_vec, trans_mat, emit_mat
 
-    # 维特比算法
-    def viterbi(self, sequence):
-        """维特比算法预测句子的分词 结果"""
+    def get_tag(self, word):
+        """得到每个词语的状态序列"""
+        if len(word) == 1:
+            return 'S'  # 说明是单个字
+        else:
+            return 'B' + (len(word) - 2) * 'M' + 'E'
+
+    def viterbi(self, sentence):
         init_vec, trans_mat, emit_mat = self.get_prob()
-        tab = [{}]
-        path = {}
+
+        delta = [{}]
 
         # 初始化
         for state in self.states:
-            tab[0][state] = init_vec[state] * emit_mat[state].get(sequence[0])
-            path[state] = [state]
+            delta[0][state] = init_vec[state] + \
+                emit_mat[state].get(sentence[0], EPS)
 
-        for t in range(1, len(sequence)):
-            tab.append({})
-            new_path = {}
+        for t in range(1, len(sentence)):
+            delta.append({})
             for state1 in self.states:
-                items = []
+                item = []
                 for state2 in self.states:
-                    prob = tab[t - 1][state2] * trans_mat[state2].get(state1)
-                    items.append((prob, state2))
-                best = max(items)
-                tab[t][state1] = best[0] * emit_mat[state1].get(sequence[t])
-                new_path[state1] = path[best[1]] + [state1]
-            path = new_path
-        prob, state = max([(tab[len(sequence) - 1][state], state)
-                           for state in self.states])
-        return path[state]
+                    prob = delta[t - 1][state2] + trans_mat[state2][state1]
+                    item.append((prob, state2))
+                best = max(item)
+                delta[t][state1] = best[0] + \
+                    emit_mat[state1].get(sentence[t], EPS)
+
+        path = []
+        for t in range(len(delta)):
+            path.append(max(delta[t], key=delta[t].get))  # 回溯最佳路径
+
+        return path
 
     def cut_sent(self, src, tags):
         word_list = []
@@ -133,12 +133,6 @@ class HiddenMarkov:
 
         if len(tags) != len(src):
             return None
-
-        if tags[0] not in {'S', 'B'}:
-            if tags[1] in {'E', 'M'}:
-                tags[0] = 'B'
-            else:
-                tags[0] = 'S'
 
         if tags[-1] not in {'S', 'E'}:  # 结尾不是 ‘S'或者'E’，说明结尾错误
             if tags[-2] in {'S', 'E'}:  # 如果倒数第二个已经是词结尾，说明最后一个是单独一个字，为’S‘标志
@@ -181,6 +175,7 @@ class HiddenMarkov:
 
     def load(self, file_name='hmm.json', code="json"):
         fr = open(file_name, 'r', encoding='utf-8')
+        model = {}
         if code == "json":
             txt = fr.read()
             model = json.loads(txt)
@@ -195,7 +190,7 @@ class HiddenMarkov:
 class HMMSegger(HiddenMarkov):
     def __init__(self):
         super(HMMSegger, self).__init__()
-        self.states = STATE
+        self.states = STATES
         self.data = None
 
     def train(self):
@@ -208,18 +203,13 @@ class HMMSegger(HiddenMarkov):
             self._init_args()
 
             for line in self.data:
-                line = line.strip()
+                words = line.strip().split()
 
                 observes = ""
-                for i in range(len(line)):
-                    if line[i] == " ":
-                        continue
-                    observes += line[i]
-
-                words = line.split()
                 status = ""
                 for word in words:
-                    status += self.get_tags(word)
+                    observes += word
+                    status += self.get_tag(word)
 
                 assert len(observes) == len(status)
                 self.train_epoch(observes, status)
@@ -236,11 +226,17 @@ class HMMSegger(HiddenMarkov):
         except BaseException:
             return sentence
 
+def test(segger,test_file):
+    with open(test_file,'r',encoding='utf-8') as f:
+        lines = f.readlines()
+        for line in lines:
+            print(segger.cut(line.strip()))
 
 if __name__ == "__main__":
-    file_path = "../data/PKU/pku_training.utf8"
+    file_path = "../data/PKU/msr_training.utf8"
     segger = HMMSegger()
     segger.loat_data(file_path)
     segger.train()
-    res = segger.cut("生存还是死亡是一个问题")
-    print(res)
+    print(segger.cut("共同创造美好的新世纪——二○○一年新年贺词"))
+    # test(segger,"../data/PKU/pku_test.utf8")
+
