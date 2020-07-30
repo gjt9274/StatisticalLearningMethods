@@ -103,14 +103,17 @@ class HiddenMarkov:
         init_vec, trans_mat, emit_mat = self.get_prob()
 
         delta = [{}]
+        psi = [{}]
 
         # 初始化
         for state in self.states:
             delta[0][state] = init_vec[state] + \
                 emit_mat[state].get(sentence[0], EPS) #如果出现训练集中没有见过的词，则返回一个极小值
+            psi[0][state] = 0
 
         for t in range(1, len(sentence)):
             delta.append({})
+            psi.append({})
             for state1 in self.states:
                 item = []
                 for state2 in self.states:
@@ -119,12 +122,16 @@ class HiddenMarkov:
                 best = max(item)
                 delta[t][state1] = best[0] + \
                     emit_mat[state1].get(sentence[t], EPS)
+                psi[t][state1] = best[1]
 
+        # 回溯最佳路径
         path = []
-        for t in range(len(delta)):
-            path.append(max(delta[t], key=delta[t].get))  # 回溯最佳路径
+        path.append(max(delta[-1],key=delta[-1].get))
 
-        return path
+        for t in range(len(psi)-2,-1,-1):
+            path.append(psi[t+1][path[-1]])  # 回溯最佳路径
+
+        return path[::-1]
 
     def cut_sent(self, src, tags):
         word_list = []
