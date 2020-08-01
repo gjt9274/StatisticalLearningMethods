@@ -7,18 +7,19 @@
 @Email:   gjt9274@gmail.com
 """
 
-import numpy as np
 import json
 import pickle
 import os
+import numpy as np
 
-STATES = {'B', 'M', 'E', 'S'}
-EPS = -3.14e+100
+# 全局参数
+STATES = {'B', 'M', 'E', 'S'}  # ‘B’：词的开始字 ‘M’：词的中间字， ‘E'：词的结束字， ’S‘：单个词
+EPS = -3.14e+100  # 极小值
 
 
 class HiddenMarkov:
     def __init__(self):
-        self.init_vec = {}  # 初始化状态概率  N(len(state))
+        self.init_vec = {}  # 初始化状态概率  N=len(state)
         self.trans_mat = {}  # 状态转移矩阵，N X N
         self.emit_mat = {}  # 发射矩阵 ， N X M
         self.states = {}
@@ -68,7 +69,7 @@ class HiddenMarkov:
             else:
                 # 为了防止句子过长，概率相乘，值下溢，用log来计算
                 init_vec[key] = np.log(
-                    float(self.init_vec[key]) / sum(self.init_vec.values()))
+                    float(self.init_vec[key]) / sum(self.init_vec.values()))  # 即所有样本中，初始状态为 * 的频率
 
         for key1 in self.trans_mat:
             total = sum(self.trans_mat[key1].values())
@@ -92,26 +93,35 @@ class HiddenMarkov:
 
         return init_vec, trans_mat, emit_mat
 
-    def get_tag(self, word):
+    @staticmethod
+    def get_tag(word):
         """得到每个词语的状态序列"""
         if len(word) == 1:
             return 'S'  # 说明是单个字
         else:
             return 'B' + (len(word) - 2) * 'M' + 'E'
 
-    def viterbi(self, sentence):
+    def viterbi(self, sent):
+        """
+        维特比算法得到句子的状态序列
+        Args:
+            sent (str): 测试文本
+
+        Returns:
+            path (list): sentence的状态序列
+        """
         init_vec, trans_mat, emit_mat = self.get_prob()
 
-        delta = [{}]
-        psi = [{}]
+        delta = [{}]  # len(sentence) x N, delta[t][*] 表示t时刻，状态为 * 的最大概率
+        psi = [{}]  # len(sentence) x N， psi[t][*] 表示t时刻，状态为 * 的概率最大路径中，t-1时刻的状态
 
         # 初始化
         for state in self.states:
             delta[0][state] = init_vec[state] + \
-                emit_mat[state].get(sentence[0], EPS) #如果出现训练集中没有见过的词，则返回一个极小值
+                              emit_mat[state].get(sent[0], EPS)  # 如果出现训练集中没有见过的词，则返回一个极小值
             psi[0][state] = 0
 
-        for t in range(1, len(sentence)):
+        for t in range(1, len(sent)):
             delta.append({})
             psi.append({})
             for state1 in self.states:
@@ -120,20 +130,18 @@ class HiddenMarkov:
                     prob = delta[t - 1][state2] + trans_mat[state2][state1]
                     item.append((prob, state2))
                 best = max(item)
-                delta[t][state1] = best[0] + \
-                    emit_mat[state1].get(sentence[t], EPS)
+                delta[t][state1] = best[0] + emit_mat[state1].get(sent[t], EPS)
                 psi[t][state1] = best[1]
 
         # 回溯最佳路径
-        path = []
-        path.append(max(delta[-1],key=delta[-1].get))
+        path = [max(delta[-1], key=delta[-1].get)]
+        for t in range(len(psi) - 2, -1, -1):
+            path.append(psi[t + 1][path[-1]])  # 回溯最佳路径
 
-        for t in range(len(psi)-2,-1,-1):
-            path.append(psi[t+1][path[-1]])  # 回溯最佳路径
+        return path[::-1]  # 需要反转
 
-        return path[::-1]
-
-    def cut_sent(self, src, tags):
+    @staticmethod
+    def cut_sent(src, tags):
         word_list = []
         start = 0
         started = False
@@ -223,28 +231,29 @@ class HMMSegger(HiddenMarkov):
 
             self.save("hmm.json")
 
-    def loat_data(self, file_path):
-        self.data = open(file_path, 'r', encoding='utf-8')
+    def load_data(self, file_name):
+        self.data = open(file_name, 'r', encoding='utf-8')
 
-    def cut(self, sentence):
+    def cut(self, sent):
         try:
-            tags = self.viterbi(sentence)
-            return self.cut_sent(sentence, tags)
+            tags = self.viterbi(sent)
+            return self.cut_sent(sent, tags)
         except BaseException:
-            return sentence
+            return sent
 
-def test(segger,test_file):
-    with open(test_file,'r',encoding='utf-8') as f:
+
+def test(model, test_file):
+    with open(test_file, 'r', encoding='utf-8') as f:
         lines = f.readlines()
         for line in lines:
-            print(segger.cut(line.strip()))
+            print(model.cut(line.strip()))
+
 
 if __name__ == "__main__":
     file_path = "../data/PKU/pku_training.utf8"
     segger = HMMSegger()
-    segger.loat_data(file_path)
+    segger.load_data(file_path)
     segger.train()
     sentence = "隐马尔可夫模型进行分词任务"
-    print(segger.cut(sentence)) #['隐马尔可夫', '模型', '进行', '分词', '任务']
+    print(segger.cut(sentence))  # ['隐马尔可夫', '模型', '进行', '分词', '任务']
     # test(segger,"../data/PKU/pku_test.utf8")
-
